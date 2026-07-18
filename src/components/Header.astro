@@ -1,0 +1,183 @@
+---
+import { site } from '@/config/site';
+
+/**
+ * Header: logo, nav, persistent phone link (PRD F-G2).
+ * Mobile: hamburger toggles nav; phone icon always visible.
+ */
+const nav = [
+  { href: '/', label: 'Beranda' },
+  { href: '/layanan', label: 'Layanan' },
+  { href: '/katalog', label: 'Katalog' },
+  { href: '/portofolio', label: 'Portofolio' },
+  { href: '/tentang', label: 'Tentang' },
+];
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="hdr">
+  <div class="container hdr__inner">
+    <a href="/" class="hdr__logo" aria-label={`${site.name} — Beranda`}>
+      <span class="hdr__mark" aria-hidden="true">🔧</span>
+      <span>{site.name}</span>
+    </a>
+
+    <nav class="hdr__nav" id="site-nav" aria-label="Navigasi utama">
+      {
+        nav.map((item) => {
+          const itemPath = item.href.replace(/\/$/, '') || '/';
+          const active = itemPath === path;
+          return (
+            <a href={item.href} aria-current={active ? 'page' : undefined}>
+              {item.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <div class="hdr__actions">
+      <a
+        class="hdr__phone"
+        href={`tel:${site.phoneTel}`}
+        aria-label={`Telepon ${site.phoneDisplay}`}
+        data-analytics="call_click"
+        data-source="header"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.2 2.2z" />
+        </svg>
+        <span class="hdr__phone-text">{site.phoneDisplay}</span>
+      </a>
+
+      <button
+        class="hdr__burger"
+        aria-controls="site-nav"
+        aria-expanded="false"
+        aria-label="Buka menu"
+        id="nav-toggle"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--c-bg);
+    border-bottom: 1px solid var(--c-border);
+  }
+  .hdr__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--header-h);
+  }
+  .hdr__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    color: var(--c-text);
+    margin-right: auto;
+  }
+  .hdr__logo:hover {
+    text-decoration: none;
+  }
+  .hdr__mark {
+    font-size: 1.25rem;
+  }
+
+  .hdr__nav {
+    display: none;
+    gap: 1.25rem;
+  }
+  .hdr__nav a {
+    color: var(--c-text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.25rem 0;
+  }
+  .hdr__nav a[aria-current='page'] {
+    color: var(--c-brand);
+    box-shadow: inset 0 -2px 0 var(--c-brand);
+  }
+
+  .hdr__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hdr__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--c-brand);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .hdr__phone-text {
+    display: none;
+  }
+
+  .hdr__burger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: transparent;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .hdr__burger span {
+    display: block;
+    height: 2px;
+    width: 1.25rem;
+    margin-inline: auto;
+    background: var(--c-text);
+  }
+
+  /* Mobile open state: nav drops below header */
+  .hdr__nav.is-open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    background: var(--c-bg);
+    border-bottom: 1px solid var(--c-border);
+    padding: 0.75rem 1rem 1rem;
+    gap: 0.75rem;
+    box-shadow: var(--shadow);
+  }
+
+  @media (min-width: 860px) {
+    .hdr__nav {
+      display: flex;
+    }
+    .hdr__burger {
+      display: none;
+    }
+    .hdr__phone-text {
+      display: inline;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('site-nav');
+  toggle?.addEventListener('click', () => {
+    const open = nav?.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(!!open));
+    toggle.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+  });
+</script>

@@ -1,0 +1,39 @@
+---
+import { getOpenState } from '@/lib/hours';
+
+/**
+ * Open/closed badge (PRD F-G5). Server-renders the state, then a tiny inline
+ * script refreshes it client-side so a cached page never shows stale status.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+const state = getOpenState();
+---
+
+<span
+  class:list={['badge', state.isOpen ? 'badge--ok' : 'badge--err', className]}
+  data-open-status
+>
+  <span aria-hidden="true">●</span>
+  <span data-open-label>{state.label}</span>
+</span>
+
+<script>
+  import { getOpenState } from '@/lib/hours';
+
+  function refresh() {
+    const el = document.querySelector<HTMLElement>('[data-open-status]');
+    const label = el?.querySelector<HTMLElement>('[data-open-label]');
+    if (!el || !label) return;
+    const state = getOpenState();
+    label.textContent = state.label;
+    el.classList.toggle('badge--ok', state.isOpen);
+    el.classList.toggle('badge--err', !state.isOpen);
+  }
+
+  refresh();
+  // Re-check on the minute so an open->close transition updates live.
+  setInterval(refresh, 60_000);
+</script>

@@ -1,0 +1,92 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { priceFrom } from '@/lib/format';
+import { waLink, waMessages } from '@/lib/whatsapp';
+
+/** Catalog product card (PRD F-C4). */
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+const { product } = Astro.props;
+const p = product.data;
+
+const availClass =
+  p.availability === 'Tersedia'
+    ? 'badge--ok'
+    : p.availability === 'Indent'
+      ? 'badge--warn'
+      : 'badge--err';
+
+const wa = waLink(
+  waMessages.product({ name: p.name, brand: p.brand, sku: p.sku }),
+);
+---
+
+<article class="card">
+  <a href={`/katalog/${product.id}`} class="card__img" aria-label={p.name}>
+    <Image
+      src={p.images[0]}
+      alt={p.name}
+      widths={[240, 480]}
+      sizes="(min-width: 640px) 240px, 45vw"
+      loading="lazy"
+    />
+  </a>
+  <div class="card__body">
+    <span class:list={['badge', availClass]}>{p.availability}</span>
+    <h3 class="card__title">
+      <a href={`/katalog/${product.id}`}>{p.name}</a>
+    </h3>
+    <div class="muted card__brand">{p.brand}</div>
+    <div class="price">{priceFrom(p.priceFrom)}</div>
+    {
+      p.compatibleModels.length > 0 && (
+        <div class="chips">
+          {p.compatibleModels.slice(0, 3).map((m) => (
+            <span class="chip">{m}</span>
+          ))}
+          {p.compatibleModels.length > 3 && (
+            <span class="chip">+{p.compatibleModels.length - 3}</span>
+          )}
+        </div>
+      )
+    }
+    <a
+      class="btn btn--wa btn--block card__cta"
+      href={wa}
+      target="_blank"
+      rel="noopener"
+      data-analytics="wa_click"
+      data-source="catalog_card"
+      data-product-id={product.id}
+    >Tanya Stok</a>
+  </div>
+</article>
+
+<style>
+  .card__img {
+    display: block;
+    aspect-ratio: 4 / 3;
+    background: var(--c-surface);
+    overflow: hidden;
+  }
+  .card__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card__title {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .card__title a {
+    color: var(--c-text);
+  }
+  .card__brand {
+    font-size: 0.85rem;
+  }
+  .card__cta {
+    margin-top: auto;
+  }
+</style>

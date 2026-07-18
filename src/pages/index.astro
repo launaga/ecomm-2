@@ -1,0 +1,135 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LocalBusinessSchema from '@/components/LocalBusinessSchema.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import LocationBlock from '@/components/LocationBlock.astro';
+import Testimonials from '@/components/Testimonials.astro';
+import { site } from '@/config/site';
+import { waLink, waMessages } from '@/lib/whatsapp';
+
+const services = (await getCollection('services'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 6);
+
+const featured = (await getCollection('projects'))
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4);
+
+const wa = waLink(waMessages.general());
+---
+
+<BaseLayout
+  title={site.name}
+  description={site.description}
+>
+  <LocalBusinessSchema slot="head" />
+
+  <!-- Hero (PRD F-H1) -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <p class="eyebrow">Bengkel motor · {site.city}</p>
+      <h1>{site.tagline}</h1>
+      <p class="hero__lede muted">
+        Servis rutin, sparepart original & aftermarket, sampai modifikasi dan
+        custom build. Tanya stok atau booking langsung lewat WhatsApp — dibalas
+        cepat.
+      </p>
+      <div class="hero__cta">
+        <a
+          class="btn btn--wa"
+          href={wa}
+          target="_blank"
+          rel="noopener"
+          data-analytics="wa_click"
+          data-source="hero"
+        >Chat via WhatsApp</a>
+        <a
+          class="btn btn--outline"
+          href={site.mapsDirectionsUrl}
+          target="_blank"
+          rel="noopener"
+          data-analytics="directions_click"
+          data-source="hero"
+        >Petunjuk Arah</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services summary (PRD F-H2) -->
+  <section class="section">
+    <div class="container">
+      <div class="section__head">
+        <h2>Layanan</h2>
+        <a href="/layanan">Semua layanan →</a>
+      </div>
+      <div class="grid grid--3">
+        {services.map((s) => <ServiceCard service={s} compact />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured projects (PRD F-H3) -->
+  {
+    featured.length > 0 && (
+      <section class="section section--muted">
+        <div class="container">
+          <div class="section__head">
+            <h2>Project Pilihan</h2>
+            <a href="/portofolio">Semua portofolio →</a>
+          </div>
+          <div class="grid grid--4">
+            {featured.map((p) => (
+              <ProjectCard project={p} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Social proof (PRD F-H5) -->
+  <section class="section">
+    <div class="container">
+      <h2>Kata Mereka</h2>
+      <Testimonials />
+    </div>
+  </section>
+
+  <!-- Location (PRD F-H4) -->
+  <section class="section section--muted">
+    <div class="container">
+      <h2>Lokasi & Jam Buka</h2>
+      <LocationBlock />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(180deg, var(--c-surface), var(--c-bg));
+    border-bottom: 1px solid var(--c-border);
+  }
+  .hero__inner {
+    padding-block: clamp(2.5rem, 8vw, 5rem);
+    max-width: 44rem;
+  }
+  .hero__lede {
+    font-size: 1.1rem;
+  }
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .section__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+</style>

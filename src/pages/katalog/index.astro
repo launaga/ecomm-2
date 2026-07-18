@@ -1,0 +1,283 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import { CATEGORIES } from '@/content.config';
+import { site } from '@/config/site';
+import { waLink, waMessages } from '@/lib/whatsapp';
+
+const products = (await getCollection('products')).sort(
+  (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name),
+);
+
+// Build the compatibility filter list from what products actually have.
+const allModels = [
+  ...new Set(products.flatMap((p) => p.data.compatibleModels)),
+].sort((a, b) => a.localeCompare(b));
+
+const waNotFound = waLink(waMessages.notFound());
+---
+
+<BaseLayout
+  title={`Katalog Sparepart — ${site.name}`}
+  description={`Cari sparepart & aksesoris motor: filter berdasarkan kategori dan kecocokan model. Tanya stok langsung via WhatsApp. ${site.name} ${site.city}.`}
+>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Katalog</p>
+      <h1>Sparepart & Aksesoris</h1>
+      <p class="muted" style="max-width: 44rem;">
+        Filter berdasarkan kategori atau model motor. Stok bisa berubah — klik
+        <strong>Tanya Stok</strong> untuk konfirmasi ketersediaan.
+      </p>
+
+      <div class="catalog">
+        <!-- Filters (PRD F-C1, F-C2, F-C3) -->
+        <aside class="filters" aria-label="Filter katalog">
+          <div class="filters__field">
+            <label class="filters__label" for="q">Cari</label>
+            <input
+              id="q"
+              type="search"
+              placeholder="Nama atau merek…"
+              autocomplete="off"
+              data-filter-search
+            />
+          </div>
+
+          <fieldset class="filters__field">
+            <legend class="filters__label">Kategori</legend>
+            <div class="filters__cats" role="group">
+              <button class="cat is-active" data-cat="" type="button">Semua</button>
+              {
+                CATEGORIES.map((c) => (
+                  <button class="cat" data-cat={c} type="button">
+                    {c}
+                  </button>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          {
+            allModels.length > 0 && (
+              <fieldset class="filters__field">
+                <legend class="filters__label">Cocok untuk motor</legend>
+                <div class="filters__models">
+                  {allModels.map((m) => (
+                    <label class="model">
+                      <input type="checkbox" value={m} data-filter-model />
+                      <span>{m}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )
+          }
+
+          <button class="btn btn--outline btn--block" type="button" data-filter-reset>
+            Reset filter
+          </button>
+        </aside>
+
+        <!-- Results -->
+        <div class="results">
+          <p class="results__count muted" data-result-count aria-live="polite"></p>
+          <div class="grid grid--3" data-product-grid>
+            {
+              products.map((product) => (
+                <div
+                  data-product
+                  data-category={product.data.category}
+                  data-models={product.data.compatibleModels.join('|')}
+                  data-search={`${product.data.name} ${product.data.brand}`.toLowerCase()}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))
+            }
+          </div>
+
+          <!-- Empty state (PRD F-C7) -->
+          <div class="empty" data-empty hidden>
+            <p>Nggak ketemu yang kamu cari?</p>
+            <a
+              class="btn btn--wa"
+              href={waNotFound}
+              target="_blank"
+              rel="noopener"
+              data-analytics="wa_click"
+              data-source="catalog_empty"
+            >Tanya Langsung</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .catalog {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 860px) {
+    .catalog {
+      grid-template-columns: 15rem 1fr;
+      align-items: start;
+    }
+    .filters {
+      position: sticky;
+      top: calc(var(--header-h) + 1rem);
+    }
+  }
+
+  .filters {
+    display: grid;
+    gap: 1.25rem;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+  .filters__field {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .filters__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--c-text-muted);
+  }
+  input[type='search'] {
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+  }
+  .filters__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .cat {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--c-border);
+    background: var(--c-bg);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .cat.is-active {
+    background: var(--c-brand);
+    color: var(--c-brand-ink);
+    border-color: var(--c-brand);
+  }
+  .filters__models {
+    display: grid;
+    gap: 0.4rem;
+    max-height: 14rem;
+    overflow: auto;
+  }
+  .model {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .results__count {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  [data-product][hidden] {
+    display: none;
+  }
+  .empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+  }
+</style>
+
+<script>
+  const grid = document.querySelector<HTMLElement>('[data-product-grid]');
+  const cards = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-product]'),
+  );
+  const searchInput =
+    document.querySelector<HTMLInputElement>('[data-filter-search]');
+  const catButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.cat'),
+  );
+  const modelBoxes = Array.from(
+    document.querySelectorAll<HTMLInputElement>('[data-filter-model]'),
+  );
+  const countEl = document.querySelector<HTMLElement>('[data-result-count]');
+  const emptyEl = document.querySelector<HTMLElement>('[data-empty]');
+  const resetBtn = document.querySelector('[data-filter-reset]');
+
+  const state = { q: '', category: '', models: new Set<string>() };
+
+  function apply() {
+    let visible = 0;
+    for (const card of cards) {
+      const models = (card.dataset.models || '').split('|').filter(Boolean);
+      const matchQ =
+        !state.q || (card.dataset.search || '').includes(state.q);
+      const matchCat =
+        !state.category || card.dataset.category === state.category;
+      const matchModel =
+        state.models.size === 0 ||
+        [...state.models].some((m) => models.includes(m));
+      const show = matchQ && matchCat && matchModel;
+      card.hidden = !show;
+      if (show) visible++;
+    }
+    if (countEl) {
+      countEl.textContent = `${visible} produk`;
+    }
+    if (emptyEl) emptyEl.hidden = visible !== 0;
+    if (grid) grid.hidden = visible === 0;
+  }
+
+  searchInput?.addEventListener('input', () => {
+    state.q = searchInput.value.trim().toLowerCase();
+    apply();
+  });
+
+  catButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.category = btn.dataset.cat || '';
+      catButtons.forEach((b) => b.classList.toggle('is-active', b === btn));
+      apply();
+    });
+  });
+
+  modelBoxes.forEach((box) => {
+    box.addEventListener('change', () => {
+      if (box.checked) state.models.add(box.value);
+      else state.models.delete(box.value);
+      apply();
+    });
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    state.q = '';
+    state.category = '';
+    state.models.clear();
+    if (searchInput) searchInput.value = '';
+    modelBoxes.forEach((b) => (b.checked = false));
+    catButtons.forEach((b, i) => b.classList.toggle('is-active', i === 0));
+    apply();
+  });
+
+  apply();
+</script>

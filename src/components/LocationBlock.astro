@@ -1,0 +1,67 @@
+---
+import { site } from '@/config/site';
+import MapEmbed from './MapEmbed.astro';
+import OpenStatus from './OpenStatus.astro';
+
+/** Location block: map + address + hours + directions (PRD F-H4 / F-A4). */
+const addr = site.address;
+---
+
+<div class="loc grid grid--2">
+  <MapEmbed />
+  <div class="loc__info stack">
+    <OpenStatus />
+    <div>
+      <h3>Alamat</h3>
+      <address class="loc__addr">
+        {addr.street}<br />
+        {addr.kelurahan}, {addr.kecamatan}<br />
+        {addr.city}, {addr.province} {addr.postalCode}
+      </address>
+    </div>
+
+    <div>
+      <h3>Jam Buka</h3>
+      <table class="loc__hours">
+        <tbody>
+          {
+            site.hours.map((h) => (
+              <tr>
+                <th scope="row">{h.label}</th>
+                <td>{h.open && h.close ? `${h.open}–${h.close}` : 'Tutup'}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <a
+      class="btn btn--primary"
+      href={site.mapsDirectionsUrl}
+      target="_blank"
+      rel="noopener"
+      data-analytics="directions_click"
+      data-source="location_block"
+    >Petunjuk Arah</a>
+  </div>
+</div>
+
+<style>
+  .loc__addr {
+    font-style: normal;
+  }
+  .loc__hours {
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .loc__hours th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--c-text-muted);
+    padding-right: 1.5rem;
+  }
+  .loc__hours td {
+    text-align: right;
+  }
+</style>

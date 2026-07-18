@@ -1,0 +1,298 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { waLink, waMessages } from '@/lib/whatsapp';
+import { site } from '@/config/site';
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const p = project.data;
+const { Content } = await render(project);
+
+const wa = waLink(waMessages.project(p.title));
+
+// Resolve linked catalog parts (PRD F-P3).
+const parts = await Promise.all(
+  p.partsUsed.map(async (part) => {
+    if (!part.product) return { label: part.label, href: null };
+    const entry = await getEntry(part.product);
+    return {
+      label: part.label,
+      href: entry ? `/katalog/${entry.id}` : null,
+    };
+  }),
+);
+
+const title = `${p.title} — ${p.bikeModel} · ${site.name}`;
+const description = `${p.projectType} ${p.bikeModel}${p.bikeYear ? ` (${p.bikeYear})` : ''}. ${p.brief.slice(0, 120)}`;
+---
+
+<BaseLayout title={title} description={description} image={undefined}>
+  <article class="section">
+    <div class="container">
+      <nav class="crumbs muted">
+        <a href="/portofolio">← Portofolio</a> · {p.projectType}
+      </nav>
+
+      <header class="proj__head">
+        <h1>{p.title}</h1>
+        <div class="proj__meta chips">
+          <span class="chip">{p.bikeModel}{p.bikeYear ? ` ${p.bikeYear}` : ''}</span>
+          <span class="chip">{p.projectType}</span>
+          <span class="chip">{p.year}</span>
+          {p.durationLabel && <span class="chip">⏱ {p.durationLabel}</span>}
+        </div>
+      </header>
+
+      <div class="proj__cover">
+        <Image
+          src={p.cover}
+          alt={`${p.title} — ${p.bikeModel}`}
+          widths={[600, 1000]}
+          sizes="(min-width: 900px) 900px, 100vw"
+          loading="eager"
+        />
+      </div>
+
+      <div class="proj__body">
+        <section>
+          <h2>Brief / Keluhan</h2>
+          <p>{p.brief}</p>
+        </section>
+
+        {
+          p.workPerformed.length > 0 && (
+            <section>
+              <h2>Pengerjaan</h2>
+              <ul class="checklist">
+                {p.workPerformed.map((w) => (
+                  <li>{w}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          parts.length > 0 && (
+            <section>
+              <h2>Parts yang Dipakai</h2>
+              <ul class="parts">
+                {parts.map((part) => (
+                  <li>
+                    {part.href ? (
+                      <a href={part.href}>{part.label}</a>
+                    ) : (
+                      part.label
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        <!-- Before/after (PRD F-P4: paired side-by-side) -->
+        {
+          p.beforeAfter.length > 0 && (
+            <section>
+              <h2>Before / After</h2>
+              <div class="ba-list">
+                {p.beforeAfter.map((pair) => (
+                  <figure class="ba">
+                    <div class="ba__pair">
+                      <div class="ba__side">
+                        <span class="ba__tag">Before</span>
+                        <Image
+                          src={pair.before}
+                          alt="Sebelum pengerjaan"
+                          widths={[300, 600]}
+                          loading="lazy"
+                        />
+                      </div>
+                      <div class="ba__side">
+                        <span class="ba__tag ba__tag--after">After</span>
+                        <Image
+                          src={pair.after}
+                          alt="Sesudah pengerjaan"
+                          widths={[300, 600]}
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                    {pair.caption && (
+                      <figcaption class="muted">{pair.caption}</figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          p.gallery.length > 0 && (
+            <section>
+              <h2>Galeri</h2>
+              <div class="proj__gallery">
+                {p.gallery.map((img, i) => (
+                  <Image
+                    src={img}
+                    alt={`${p.title} — galeri ${i + 1}`}
+                    widths={[300, 600]}
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        <div class="proj__prose">
+          <Content />
+        </div>
+
+        {
+          p.testimonial && (
+            <blockquote class="proj__testi">
+              “{p.testimonial.quote}”
+              <cite>— {p.testimonial.author}</cite>
+            </blockquote>
+          )
+        }
+      </div>
+
+      <!-- CTA (PRD F-P5) -->
+      <div class="proj__cta">
+        <p><strong>Mau kerjaan serupa untuk motormu?</strong></p>
+        <a
+          class="btn btn--wa"
+          href={wa}
+          target="_blank"
+          rel="noopener"
+          data-analytics="wa_click"
+          data-source="project_detail"
+        >Tanya via WhatsApp</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .proj__head {
+    margin-bottom: 1rem;
+  }
+  .proj__cover {
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--c-surface);
+    margin-bottom: 2rem;
+  }
+  .proj__body {
+    max-width: 46rem;
+  }
+  .proj__body section {
+    margin-bottom: 2rem;
+  }
+  .checklist {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .checklist li::before {
+    content: '✓ ';
+    color: var(--c-ok);
+    font-weight: 700;
+  }
+  .parts {
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .ba-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .ba__pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .ba__side {
+    position: relative;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--c-surface);
+  }
+  .ba__side :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  .ba__tag {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.4rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+  .ba__tag--after {
+    background: var(--c-ok);
+  }
+  .proj__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+  }
+  .proj__gallery :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+  .proj__testi {
+    margin: 2rem 0 0;
+    padding: 1.25rem 1.5rem;
+    background: var(--c-surface);
+    border-left: 3px solid var(--c-brand);
+    border-radius: var(--radius-sm);
+    font-size: 1.05rem;
+  }
+  .proj__testi cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--c-text-muted);
+    font-style: normal;
+  }
+  .proj__cta {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    background: var(--c-surface);
+    border-radius: var(--radius);
+  }
+  @media (max-width: 480px) {
+    .ba__pair {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

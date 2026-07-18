@@ -1,0 +1,144 @@
+---
+import { site } from '@/config/site';
+import { waLink, waMessages } from '@/lib/whatsapp';
+import OpenStatus from './OpenStatus.astro';
+
+/**
+ * Footer: address, structured hours, phone, WA, IG, map link (PRD F-G3).
+ */
+const addr = site.address;
+---
+
+<footer class="ftr">
+  <div class="container ftr__grid">
+    <div>
+      <div class="ftr__brand">{site.name}</div>
+      <p class="muted">{site.tagline}</p>
+      <OpenStatus />
+    </div>
+
+    <div>
+      <h3 class="ftr__h">Lokasi</h3>
+      <address class="ftr__addr">
+        {addr.street}<br />
+        {addr.kelurahan}, {addr.kecamatan}<br />
+        {addr.city}, {addr.province} {addr.postalCode}
+      </address>
+      <a
+        href={site.mapsDirectionsUrl}
+        target="_blank"
+        rel="noopener"
+        data-analytics="directions_click"
+        data-source="footer"
+      >Petunjuk Arah →</a>
+    </div>
+
+    <div>
+      <h3 class="ftr__h">Jam Buka</h3>
+      <table class="ftr__hours">
+        <tbody>
+          {
+            site.hours.map((h) => (
+              <tr>
+                <th scope="row">{h.label}</th>
+                <td>{h.open && h.close ? `${h.open}–${h.close}` : 'Tutup'}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <h3 class="ftr__h">Kontak</h3>
+      <ul class="ftr__links">
+        <li>
+          <a
+            href={waLink(waMessages.general())}
+            target="_blank"
+            rel="noopener"
+            data-analytics="wa_click"
+            data-source="footer"
+          >WhatsApp</a>
+        </li>
+        <li>
+          <a
+            href={`tel:${site.phoneTel}`}
+            data-analytics="call_click"
+            data-source="footer"
+          >{site.phoneDisplay}</a>
+        </li>
+        <li>
+          <a href={site.instagram} target="_blank" rel="noopener"
+            >Instagram {site.instagramHandle}</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container ftr__bottom">
+    <small class="muted"
+      >© {new Date().getFullYear()} {site.legalName}. Seluruh hak cipta
+      dilindungi.</small
+    >
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    background: var(--c-surface);
+    border-top: 1px solid var(--c-border);
+    margin-top: 3rem;
+    padding-block: 2.5rem 1.5rem;
+  }
+  .ftr__grid {
+    display: grid;
+    gap: 1.75rem;
+  }
+  @media (min-width: 700px) {
+    .ftr__grid {
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    }
+  }
+  .ftr__brand {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  .ftr__h {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-muted);
+    margin-bottom: 0.6rem;
+  }
+  .ftr__addr {
+    font-style: normal;
+    margin-bottom: 0.5rem;
+  }
+  .ftr__hours {
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 16rem;
+  }
+  .ftr__hours th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--c-text-muted);
+    padding-right: 1rem;
+  }
+  .ftr__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .ftr__bottom {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--c-border);
+  }
+</style>
