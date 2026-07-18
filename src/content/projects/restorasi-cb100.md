@@ -4,7 +4,7 @@ bikeModel: Honda CB100
 bikeYear: 1972
 projectType: Restorasi
 year: 2025
-cover: ../../assets/placeholders/project-cover.jpg
+cover: ../../assets/generated/project-restorasi-cb100.jpg
 brief: >
   Motor warisan keluarga, lama teronggok di gudang. Mesin mati total, cat
   mengelupas, dan banyak part hilang. Pemilik ingin dikembalikan ke kondisi
@@ -20,12 +20,12 @@ partsUsed:
     product: busi-iridium
   - label: Kabel bodi custom
 beforeAfter:
-  - before: ../../assets/placeholders/before.jpg
-    after: ../../assets/placeholders/after.jpg
+  - before: ../../assets/generated/before.jpg
+    after: ../../assets/generated/after.jpg
     caption: Kondisi bodi sebelum & sesudah repaint
 gallery:
-  - ../../assets/placeholders/product.jpg
-  - ../../assets/placeholders/product-2.jpg
+  - ../../assets/generated/detail-1.jpg
+  - ../../assets/generated/detail-2.jpg
 testimonial:
   quote: Motor kakek saya hidup lagi seperti baru. Detailnya niat banget.
   author: Pak Bambang

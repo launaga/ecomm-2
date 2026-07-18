@@ -10,7 +10,7 @@ compatibleModels:
   - Honda PCX
   - Yamaha NMAX
 images:
-  - ../../assets/placeholders/product.jpg
+  - ../../assets/generated/product-lampu-led-h4.jpg
 specs:
   Soket: H4
   Suhu warna: 6000K

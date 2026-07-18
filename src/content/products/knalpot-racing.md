@@ -9,7 +9,7 @@ compatibleModels:
   - Yamaha NMAX
   - Yamaha Aerox
 images:
-  - ../../assets/placeholders/product-2.jpg
+  - ../../assets/generated/product-knalpot-racing.jpg
 specs:
   Bahan: Stainless steel
   Tipe: Slip-on

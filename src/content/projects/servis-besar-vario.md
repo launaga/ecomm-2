@@ -4,7 +4,7 @@ bikeModel: Honda Vario 125
 bikeYear: 2018
 projectType: Servis Besar
 year: 2024
-cover: ../../assets/placeholders/project-cover.jpg
+cover: ../../assets/generated/project-servis-besar-vario.jpg
 brief: >
   Tarikan motor terasa berat dan boros bensin setelah menempuh 45.000 km.
   Pemilik ingin performa dikembalikan tanpa harus ganti motor.
@@ -20,8 +20,8 @@ partsUsed:
   - label: Busi Iridium NGK
     product: busi-iridium
 beforeAfter:
-  - before: ../../assets/placeholders/before.jpg
-    after: ../../assets/placeholders/after.jpg
+  - before: ../../assets/generated/before.jpg
+    after: ../../assets/generated/after.jpg
     caption: Kondisi ruang bakar sebelum & sesudah dibersihkan
 featured: false
 order: 3

@@ -11,7 +11,7 @@ compatibleModels:
   - Honda Vario 125
   - Yamaha NMAX
 images:
-  - ../../assets/placeholders/product.jpg
+  - ../../assets/generated/product-oli-mesin-10w40.jpg
 specs:
   Kekentalan: 10W-40
   Volume: 0,8 Liter

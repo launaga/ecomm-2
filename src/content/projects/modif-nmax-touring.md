@@ -4,7 +4,7 @@ bikeModel: Yamaha NMAX
 bikeYear: 2021
 projectType: Modif
 year: 2025
-cover: ../../assets/placeholders/project-cover.jpg
+cover: ../../assets/generated/project-modif-nmax-touring.jpg
 brief: >
   Pemilik sering touring jarak jauh dan mengeluh suspensi keras serta
   pengereman kurang pakem saat boncengan penuh. Minta upgrade kenyamanan dan
@@ -23,8 +23,8 @@ partsUsed:
   - label: Kampas Rem Depan Aspira
     product: kampas-rem-depan
 beforeAfter:
-  - before: ../../assets/placeholders/before.jpg
-    after: ../../assets/placeholders/after.jpg
+  - before: ../../assets/generated/before.jpg
+    after: ../../assets/generated/after.jpg
 featured: true
 order: 2
 ---

@@ -9,8 +9,8 @@ compatibleModels:
   - Yamaha NMAX
   - Yamaha Aerox
 images:
-  - ../../assets/placeholders/product-2.jpg
-  - ../../assets/placeholders/product.jpg
+  - ../../assets/generated/product-shockbreaker-belakang.jpg
+  - ../../assets/generated/detail-1.jpg
 specs:
   Tipe: Tabung / gas
   Posisi: Belakang

@@ -16,11 +16,18 @@ WhatsApp-first, no checkout**. Discovery + trust, not e-commerce.
 
 ```bash
 npm install
-node scripts/gen-placeholders.mjs   # generate sample images (first run only)
-npm run dev                         # http://localhost:4321
-npm run build                       # static output in dist/
-npm run preview                     # serve the build locally
+node scripts/gen-images.mjs   # generate branded placeholder illustrations (first run only)
+npm run dev                   # http://localhost:4321
+npm run build                 # static output in dist/
+npm run preview               # serve the build locally
 ```
+
+> **Images.** `src/assets/generated/` holds original, on-brand *illustrations*
+> (not photos) produced by `scripts/gen-images.mjs` — one per product/project,
+> plus before/after and gallery fillers. They exist so a fresh deploy looks
+> intentional. Replace them with the client's real photography at the same
+> paths referenced in `src/content/**`. They are original art (no third-party
+> license).
 
 Set the public URL for canonical tags / sitemap at build time:
 

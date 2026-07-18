@@ -11,7 +11,7 @@ compatibleModels:
   - Yamaha Mio
   - Honda Scoopy
 images:
-  - ../../assets/placeholders/product.jpg
+  - ../../assets/generated/product-busi-iridium.jpg
 specs:
   Tipe: Iridium
   Gap: 0,8–0,9 mm

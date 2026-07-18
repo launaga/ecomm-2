@@ -10,8 +10,8 @@ compatibleModels:
   - Honda Vario 125
   - Honda Scoopy
 images:
-  - ../../assets/placeholders/product.jpg
-  - ../../assets/placeholders/product-2.jpg
+  - ../../assets/generated/product-kampas-rem-depan.jpg
+  - ../../assets/generated/detail-1.jpg
 specs:
   Tipe: Non-asbestos
   Posisi: Depan

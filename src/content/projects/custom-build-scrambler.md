@@ -4,7 +4,7 @@ bikeModel: Honda Tiger
 bikeYear: 2010
 projectType: Custom Build
 year: 2025
-cover: ../../assets/placeholders/project-cover.jpg
+cover: ../../assets/generated/project-custom-build-scrambler.jpg
 brief: >
   Pemilik ingin mengubah Honda Tiger standar menjadi scrambler bergaya
   retro-modern untuk pemakaian harian sekaligus gaya. Konsep dibuat dari nol
@@ -20,11 +20,11 @@ partsUsed:
     product: lampu-led-h4
   - label: Jok custom handmade
 beforeAfter:
-  - before: ../../assets/placeholders/before.jpg
-    after: ../../assets/placeholders/after.jpg
+  - before: ../../assets/generated/before.jpg
+    after: ../../assets/generated/after.jpg
 gallery:
-  - ../../assets/placeholders/product.jpg
-  - ../../assets/placeholders/product-2.jpg
+  - ../../assets/generated/detail-1.jpg
+  - ../../assets/generated/detail-2.jpg
 testimonial:
   quote: Hasilnya persis kayak yang saya bayangin. Prosesnya juga transparan.
   author: Mas Reza
