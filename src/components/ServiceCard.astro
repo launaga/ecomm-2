@@ -1,0 +1,83 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { priceRange } from '@/lib/format';
+import { waLink, waMessages } from '@/lib/whatsapp';
+
+/** Service card with price range + WA CTA (PRD F-S1, F-S2). */
+interface Props {
+  service: CollectionEntry<'services'>;
+  /** Compact variant for the Home services summary (PRD F-H2). */
+  compact?: boolean;
+}
+const { service, compact = false } = Astro.props;
+const s = service.data;
+const wa = waLink(waMessages.service(s.name));
+---
+
+<article class="card svc" id={service.id}>
+  <div class="card__body">
+    <div class="svc__head">
+      {s.icon && <span class="svc__icon" aria-hidden="true">{s.icon}</span>}
+      <h3 class="card__title">{s.name}</h3>
+    </div>
+    <p class="muted">{s.summary}</p>
+
+    {
+      !compact && s.includes.length > 0 && (
+        <ul class="svc__includes">
+          {s.includes.map((i) => (
+            <li>{i}</li>
+          ))}
+        </ul>
+      )
+    }
+
+    <div class="svc__meta">
+      <span class="price">{priceRange(s.priceFrom, s.priceTo)}</span>
+      {s.durationLabel && <span class="chip">⏱ {s.durationLabel}</span>}
+    </div>
+
+    <a
+      class="btn btn--wa btn--block svc__cta"
+      href={wa}
+      target="_blank"
+      rel="noopener"
+      data-analytics="wa_click"
+      data-source="service_card"
+    >Tanya Layanan</a>
+  </div>
+</article>
+
+<style>
+  .card__title {
+    margin: 0;
+  }
+  .svc__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .svc__icon {
+    font-size: 1.4rem;
+  }
+  .svc__includes {
+    margin: 0.25rem 0 0.5rem;
+    padding-left: 1.1rem;
+    color: var(--c-text-muted);
+    font-size: 0.9rem;
+  }
+  .svc__includes li {
+    margin-bottom: 0.2rem;
+  }
+  .svc__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  .svc__cta {
+    margin-top: 0.75rem;
+  }
+</style>

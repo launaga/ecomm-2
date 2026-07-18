@@ -1,0 +1,47 @@
+---
+import { site } from '@/config/site';
+
+/**
+ * Per-page <head>: unique title + meta description, canonical, OG,
+ * favicon (PRD SEO4, SEO5). Global stylesheet is imported by BaseLayout.
+ */
+interface Props {
+  title: string;
+  description: string;
+  /** Optional social share image (absolute or site-relative path). */
+  image?: string;
+  /** Set true on pages that should not be indexed. */
+  noindex?: boolean;
+}
+
+const { title, description, image, noindex = false } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
+const fullTitle =
+  title === site.name ? title : `${title} — ${site.name}`;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<meta name="theme-color" content="#c1121f" />
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content="id_ID" />
+<meta property="og:site_name" content={site.name} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+
+<link rel="sitemap" href="/sitemap-index.xml" />

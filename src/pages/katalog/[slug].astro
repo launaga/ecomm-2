@@ -1,0 +1,207 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { priceFrom } from '@/lib/format';
+import { waLink, waMessages } from '@/lib/whatsapp';
+import { site } from '@/config/site';
+
+export const getStaticPaths = (async () => {
+  const products = await getCollection('products');
+  return products.map((product) => ({
+    params: { slug: product.id },
+    props: { product },
+  }));
+}) satisfies GetStaticPaths;
+
+const { product } = Astro.props;
+const p = product.data;
+const { Content } = await render(product);
+
+const availClass =
+  p.availability === 'Tersedia'
+    ? 'badge--ok'
+    : p.availability === 'Indent'
+      ? 'badge--warn'
+      : 'badge--err';
+
+const wa = waLink(
+  waMessages.product({ name: p.name, brand: p.brand, sku: p.sku }),
+);
+
+// SEO4 title template: [Product] [Brand] — [Workshop] [Kota]
+const title = `${p.name} ${p.brand} — ${site.name} ${site.city}`;
+const description = `${p.name} (${p.brand}) — ${priceFrom(p.priceFrom)}. ${p.availability}. Tanya stok & kecocokan motor via WhatsApp.`;
+
+/**
+ * Product JSON-LD (PRD SEO2). offers.price is intentionally OMITTED — bad
+ * price markup is worse than none. Add offers only when prices are committed.
+ */
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: p.name,
+  brand: { '@type': 'Brand', name: p.brand },
+  sku: p.sku,
+  category: p.category,
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(productSchema)}
+    is:inline
+  />
+
+  <section class="section">
+    <div class="container">
+      <nav class="crumbs muted">
+        <a href="/katalog">← Katalog</a> · {p.category}
+      </nav>
+
+      <div class="pd grid grid--2">
+        <!-- Gallery (PRD F-C5) -->
+        <div class="gallery">
+          <div class="gallery__main">
+            <Image
+              src={p.images[0]}
+              alt={p.name}
+              widths={[400, 800]}
+              sizes="(min-width: 640px) 480px, 92vw"
+              loading="eager"
+            />
+          </div>
+          {
+            p.images.length > 1 && (
+              <div class="gallery__thumbs">
+                {p.images.map((img, i) => (
+                  <Image
+                    src={img}
+                    alt={`${p.name} — foto ${i + 1}`}
+                    widths={[120]}
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            )
+          }
+        </div>
+
+        <!-- Info -->
+        <div class="pd__info stack">
+          <span class:list={['badge', availClass]}>{p.availability}</span>
+          <h1>{p.name}</h1>
+          <div class="muted">{p.brand} · Kode: {p.sku}</div>
+          <div class="price price--lg">{priceFrom(p.priceFrom)}</div>
+
+          {
+            p.compatibleModels.length > 0 && (
+              <div>
+                <h3>Cocok untuk</h3>
+                <div class="chips">
+                  {p.compatibleModels.map((m) => (
+                    <span class="chip">{m}</span>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          {
+            Object.keys(p.specs).length > 0 && (
+              <div>
+                <h3>Spesifikasi</h3>
+                <table class="specs">
+                  <tbody>
+                    {Object.entries(p.specs).map(([k, v]) => (
+                      <tr>
+                        <th scope="row">{k}</th>
+                        <td>{v}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+
+          <div class="pd__desc">
+            <Content />
+          </div>
+
+          <a
+            class="btn btn--wa btn--block"
+            href={wa}
+            target="_blank"
+            rel="noopener"
+            data-analytics="wa_click"
+            data-source="product_detail"
+            data-product-id={product.id}
+          >Tanya Stok via WhatsApp</a>
+
+          <p class="disclaimer muted">
+            Harga & stok dapat berubah sewaktu-waktu. Konfirmasi ketersediaan
+            lewat WhatsApp sebelum datang.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .gallery__main {
+    aspect-ratio: 4 / 3;
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .gallery__main :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gallery__thumbs {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .gallery__thumbs :global(img) {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--c-border);
+  }
+  .price--lg {
+    font-size: 1.5rem;
+  }
+  .specs {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+  }
+  .specs th,
+  .specs td {
+    text-align: left;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: top;
+  }
+  .specs th {
+    color: var(--c-text-muted);
+    font-weight: 500;
+    width: 40%;
+  }
+  .disclaimer {
+    font-size: 0.85rem;
+  }
+</style>

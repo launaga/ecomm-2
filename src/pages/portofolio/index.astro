@@ -1,0 +1,102 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import { PROJECT_TYPES } from '@/content.config';
+import { site } from '@/config/site';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order || b.data.year - a.data.year,
+);
+---
+
+<BaseLayout
+  title={`Portofolio Project — ${site.name}`}
+  description={`Hasil kerja bengkel: servis besar, restorasi, modifikasi, dan custom build. Lihat before/after, parts yang dipakai, dan durasi pengerjaan.`}
+>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Portofolio</p>
+      <h1>Hasil Kerja Kami</h1>
+      <p class="muted" style="max-width: 44rem;">
+        Bukti nyata pengerjaan — dari servis besar sampai custom build. Lihat
+        detail brief, parts yang dipakai, dan hasil before/after tiap project.
+      </p>
+
+      <!-- Type filter (PRD F-P2) -->
+      <div class="pfilters" role="group" aria-label="Filter jenis project">
+        <button class="cat is-active" data-type="" type="button">Semua</button>
+        {
+          PROJECT_TYPES.map((t) => (
+            <button class="cat" data-type={t} type="button">
+              {t}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="grid grid--3" data-project-grid style="margin-top: 1.5rem;">
+        {
+          projects.map((project, i) => (
+            <div data-project data-type={project.data.projectType}>
+              <ProjectCard project={project} loading={i < 3 ? 'eager' : 'lazy'} />
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="muted" data-empty hidden style="margin-top: 1.5rem;">
+        Belum ada project untuk kategori ini.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pfilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+  }
+  .cat {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--c-border);
+    background: var(--c-bg);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .cat.is-active {
+    background: var(--c-brand);
+    color: var(--c-brand-ink);
+    border-color: var(--c-brand);
+  }
+  [data-project][hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  const buttons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.pfilters .cat'),
+  );
+  const cards = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-project]'),
+  );
+  const empty = document.querySelector<HTMLElement>('[data-empty]');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.type || '';
+      buttons.forEach((b) => b.classList.toggle('is-active', b === btn));
+      let visible = 0;
+      for (const card of cards) {
+        const show = !type || card.dataset.type === type;
+        card.hidden = !show;
+        if (show) visible++;
+      }
+      if (empty) empty.hidden = visible !== 0;
+    });
+  });
+</script>

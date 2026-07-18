@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import { site } from '@/config/site';
+
+const services = (await getCollection('services')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<BaseLayout
+  title={`Layanan & Harga — ${site.name}`}
+  description={`Daftar layanan bengkel: servis, sparepart, modifikasi, dengan estimasi harga. ${site.name} di ${site.city}.`}
+>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Layanan</p>
+      <h1>Layanan & Estimasi Harga</h1>
+      <p class="muted" style="max-width: 44rem;">
+        Berikut layanan yang kami kerjakan beserta kisaran harganya. Setiap
+        pekerjaan bisa berbeda tergantung kondisi motor.
+      </p>
+
+      <div class="grid grid--3" style="margin-top: 1.5rem;">
+        {services.map((s) => <ServiceCard service={s} />)}
+      </div>
+
+      <!-- Global price disclaimer (PRD F-S3) -->
+      <p class="disclaimer">
+        <strong>Catatan:</strong> Semua harga di atas adalah estimasi. Harga
+        final ditentukan setelah pengecekan kondisi motor secara langsung.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .disclaimer {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: var(--c-surface);
+    border-left: 3px solid var(--c-brand);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--c-text-muted);
+  }
+</style>

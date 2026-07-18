@@ -1,0 +1,58 @@
+---
+import { site } from '@/config/site';
+
+/**
+ * LocalBusiness (AutoRepair) JSON-LD (PRD SEO1). Rendered on Home + About.
+ * priceRange kept vague ("$$") — do NOT emit specific committed prices here.
+ */
+const dayMap: Record<number, string> = {
+  0: 'Sunday',
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+};
+
+const openingHours = site.hours
+  .filter((h) => h.open && h.close)
+  .map((h) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: `https://schema.org/${dayMap[h.day]}`,
+    opens: h.open,
+    closes: h.close,
+  }));
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'AutoRepair',
+  name: site.name,
+  description: site.description,
+  url: Astro.site?.href,
+  telephone: site.phoneTel,
+  priceRange: '$$',
+  image: Astro.site ? new URL('/og-default.jpg', Astro.site).href : undefined,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.city,
+    addressRegion: site.address.province,
+    postalCode: site.address.postalCode,
+    addressCountry: site.address.country,
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: site.geo.latitude,
+    longitude: site.geo.longitude,
+  },
+  openingHoursSpecification: openingHours,
+  sameAs: [site.instagram],
+};
+---
+
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify(schema)}
+  is:inline
+/>

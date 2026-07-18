@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+
+/** Social proof (PRD F-H5). Only real, attributable testimonials (SEO3). */
+const items = (await getCollection('testimonials')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+{
+  items.length > 0 && (
+    <div class="grid grid--3">
+      {items.map((t) => (
+        <figure class="card testi">
+          <blockquote class="testi__quote">“{t.data.quote}”</blockquote>
+          <figcaption class="testi__by">
+            <strong>{t.data.author}</strong>
+            <span class="muted">{t.data.bikeModel}</span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .testi {
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+  .testi__quote {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .testi__by {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+  }
+</style>
